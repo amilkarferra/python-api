@@ -17,16 +17,23 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
+        # Log para confirmar que se ha revisado el código correctamente
+        run: echo "Código revisado y listo para la configuración."
 
       - name: Set up Python version
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+        # Log para confirmar la instalación de la versión de Python
+        run: echo "Versión de Python configurada: $(python --version)"
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
-        
-      # Optional: Run unit tests to ensure everything is working before deployment
+        run: |
+          echo "Instalando dependencias del proyecto..."
+          pip install -r requirements.txt
+          echo "Dependencias instaladas correctamente."
+
+      # Optional: Run unit tests here
       # - name: Run Unit Tests
       #   run: pytest
 
@@ -41,41 +48,47 @@ jobs:
             !__pycache__/
             !*.md
             !tests/
+        # Log para confirmar la subida de artefactos
+        run: echo "Artefactos preparados y subidos para el despliegue."
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     environment:
       name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write
+      id-token: write # Esto es requerido para autenticación con Azure (OIDC o JWT)
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: python-app
+        # Log para verificar que se han descargado los artefactos correctamente
+        run: echo "Artefactos descargados del trabajo de construcción."
 
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
-          client-secret: ${{ secrets.AZUREAPPSERVICE_CLIENTSECRET }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_8707AE064F584C11811D43EE26810EEB }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_647F9101FBA64F729BC742F2ADD0D8C7 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7367058CB5854D7E83364208FEA97EC1 }}
+        # Log para confirmar que se ha iniciado sesión en Azure
+        run: echo "Inicio de sesión en Azure completado."
 
       - name: 'Deploy to Azure Web App'
         uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
         with:
           app-name: 'fast-api-dev'
           slot-name: 'Production'
           package: '.'
+        # Log para verificar que el despliegue se inició
+        run: echo "Despliegue a Azure Web App iniciado..."
 
       - name: Configure Startup Command
         run: |
+          echo "Configurando el comando de inicio de la aplicación..."
           az webapp config set --name fast-api-dev --resource-group rg-sl001-dev --startup-file "gunicorn -w 4 -k uvicorn.workers.UvicornWorker app:app"
-        env:
-          AZURE_CLIENT_ID: ${{ secrets.AZUREAPPSERVICE_CLIENTID }}
-          AZURE_TENANT_ID: ${{ secrets.AZUREAPPSERVICE_TENANTID }}
-          AZURE_SUBSCRIPTION_ID: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID }}
-          AZURE_CLIENT_SECRET: ${{ secrets.AZUREAPPSERVICE_CLIENTSECRET }}
+          echo "Comando de inicio configurado correctamente."
