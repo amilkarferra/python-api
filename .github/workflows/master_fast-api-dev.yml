@@ -71,7 +71,7 @@ jobs:
 
       - name: Configure Startup Command
         run: |
-          az webapp config set --name fast-api-dev --resource-group <YOUR_RESOURCE_GROUP> --startup-file "gunicorn -w 4 -k uvicorn.workers.UvicornWorker app:app"
+          az webapp config set --name fast-api-dev --resource-group rg-sl001-dev --startup-file "gunicorn -w 4 -k uvicorn.workers.UvicornWorker app:app"
         env:
           AZURE_CLIENT_ID: ${{ secrets.AZUREAPPSERVICE_CLIENTID_8707AE064F584C11811D43EE26810EEB }}
           AZURE_TENANT_ID: ${{ secrets.AZUREAPPSERVICE_TENANTID_647F9101FBA64F729BC742F2ADD0D8C7 }}
