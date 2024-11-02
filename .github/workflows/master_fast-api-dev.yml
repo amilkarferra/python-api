@@ -17,14 +17,16 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-        # Log para confirmar que se ha revisado el código correctamente
+      
+      - name: Log - Código revisado
         run: echo "Código revisado y listo para la configuración."
 
       - name: Set up Python version
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-        # Log para confirmar la instalación de la versión de Python
+      
+      - name: Log - Versión de Python configurada
         run: echo "Versión de Python configurada: $(python --version)"
 
       - name: Install dependencies
@@ -32,10 +34,6 @@ jobs:
           echo "Instalando dependencias del proyecto..."
           pip install -r requirements.txt
           echo "Dependencias instaladas correctamente."
-
-      # Optional: Run unit tests here
-      # - name: Run Unit Tests
-      #   run: pytest
 
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
@@ -48,7 +46,8 @@ jobs:
             !__pycache__/
             !*.md
             !tests/
-        # Log para confirmar la subida de artefactos
+      
+      - name: Log - Artefactos preparados
         run: echo "Artefactos preparados y subidos para el despliegue."
 
   deploy:
@@ -65,7 +64,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: python-app
-        # Log para verificar que se han descargado los artefactos correctamente
+
+      - name: Log - Artefactos descargados
         run: echo "Artefactos descargados del trabajo de construcción."
 
       - name: Login to Azure
@@ -74,7 +74,8 @@ jobs:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_8707AE064F584C11811D43EE26810EEB }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_647F9101FBA64F729BC742F2ADD0D8C7 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_7367058CB5854D7E83364208FEA97EC1 }}
-        # Log para confirmar que se ha iniciado sesión en Azure
+      
+      - name: Log - Inicio de sesión en Azure completado
         run: echo "Inicio de sesión en Azure completado."
 
       - name: 'Deploy to Azure Web App'
@@ -84,7 +85,8 @@ jobs:
           app-name: 'fast-api-dev'
           slot-name: 'Production'
           package: '.'
-        # Log para verificar que el despliegue se inició
+
+      - name: Log - Despliegue iniciado
         run: echo "Despliegue a Azure Web App iniciado..."
 
       - name: Configure Startup Command
