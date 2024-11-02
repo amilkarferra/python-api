@@ -27,7 +27,9 @@ jobs:
           python-version: '3.12'
       
       - name: Log - Versión de Python configurada
-        run: echo "Versión de Python configurada: $(python --version)"
+        run: |
+          echo -n "Versión de Python configurada: "
+          python --version
 
       - name: Install dependencies
         run: |
